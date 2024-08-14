@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register</title>
+    <style>
+        body {
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    background: #000;
+}
+/* Hide the placeholder when not focused */
+.input-container input::placeholder {
+    color: transparent; /* Make the placeholder text transparent */
+}
+
+.input-container input:focus::placeholder {
+    color: transparent; /* Keep the placeholder text hidden when focused */
+}
+
+.input-container input:focus ~ label,
+.input-container input:not(:placeholder-shown) ~ label {
+    top: -10px;
+    font-size: 14px;
+    color: #d79208; /* Color when focused */
+}
+
+.input-container {
+    position: relative;
+    margin: 15px 0;
+}
+
+.input-container input {
+    width: calc(100% - 20px);
+    padding: 12px 0;
+    margin: 15px 0;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-container label {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.input-container input:focus::placeholder {
+    color: transparent;
+}
+
+.input-container input:focus ~ label,
+.input-container input:not(:placeholder-shown) ~ label {
+    top: -10px;
+    font-size: 14px;
+    color: #d79208; /* Color when focused */
+}
+
+
+        .content--canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place the background behind the login container */
+        }
+        /* Remove background color and other styling from autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px transparent inset;
+    box-shadow: 0 0 0 1000px transparent inset;
+    -webkit-text-fill-color: #fff; /* Adjust the text color to match your design */
+    transition: background-color 5000s ease-in-out 0s;
+}
+.container {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.05); /* Semi-transparent background */
+    backdrop-filter: blur(5px); /* Frosted glass effect */
+    padding: 30px; /* Increased padding for more space around the form */
+    border-radius: 5px; /* Slightly increased border radius */
+    box-shadow: 0 4px 15px rgba(1, 1, 1, 1); /* More pronounced shadow */
+    width: 400px; /* Width remains the same */
+    height: auto; /* Adjust height to fit content */
+    max-width: 100%;
+    color: white;
+    z-index: 1; /* Ensure the container is above the background */
+    top: 50%; /* Center vertically */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center horizontally and vertically */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 25px; /* Increased margin for spacing */
+}
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 12px 0; /* Increased padding for more comfortable input */
+    margin: 15px 0; /* Increased margin for more space between inputs */
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Subtle underline */
+    background: transparent;
+    color: #fff;
+    font-size: 16px; /* Increased font size for better readability */
+    outline: none; /* Removes the default focus outline */
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7); /* Optional: Make the underline slightly more visible on focus */
+}
+
+button {
+    width: 100%;
+    padding: 12px; /* Increased padding for buttons */
+    background-color: #d79208; /* Pinkish color */
+    border: none;
+    border-radius: 5px; /* Increased border radius */
+    color: white;
+    font-size: 18px; /* Increased font size for better readability */
+    cursor: pointer;
+    margin: 15px 0; /* Increased margin for more spacing */
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #bac431; /* Darker pinkish color on hover */
+}
+
+.tab {
+    display: flex;
+    justify-content: space-around;  
+    margin-bottom: 25px; /* Increased margin for spacing */
+}
+
+.tab button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 12px; /* Increased padding for buttons */
+    transition: color 0.3s;
+}
+
+.tab button.active {
+    border-bottom: 2px solid #d79208;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#otp-section {
+    display: none;
+    margin-top: 25px; /* Margin for spacing */
+}
+
+#otp-section.active {
+    display: block;
+}
+
+#otp-section + form {
+    display: none;
+}
+    </style>
+</head>
+<body>
+    <div class="content content--canvas"></div>
+    <div class="container">
+        <div class="tab">
+            <button id="login-tab" class="active">Login</button>
+            <button id="register-tab">Register</button>
+        </div>
+
+        <!-- Login Form -->
+<div id="login-form" class="tab-content active">
+    <h1>Login</h1>
+    <form>
+        <div class="input-container">
+            <input type="text" id="login-usernameOrEmail" placeholder="Username or Email" required>
+            <label for="login-usernameOrEmail">Username or Email</label>
+        </div>
+        <div class="input-container">
+            <input type="password" id="login-password" placeholder="Password" required>
+            <label for="login-password">Password</label>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <div id="login-message"></div>
+</div>
+
+<!-- Register Form -->
+<div id="register-form" class="tab-content">
+    <h1>Register</h1>
+    <form id="signup-form">
+        <div class="input-container">
+            <input type="text" name="username" placeholder="Username" required>
+            <label for="username">Username</label>
+        </div>
+        <div class="input-container">
+            <input type="email" name="email" placeholder="Email" required>
+            <label for="email">Email</label>
+        </div>
+        <div class="input-container">
+            <input type="password" name="password" placeholder="Password" required>
+            <label for="password">Password</label>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+
+    <!-- Countdown Display -->
+    <div id="otp-countdown" style="display: none;">
+        <p>Sending OTP in <span id="countdown">5</span> seconds...</p>
+    </div>
+
+    <!-- OTP Input Section -->
+    <div id="otp-section" style="display: none;">
+        <h2>Enter OTP</h2>
+        <div class="input-container">
+            <input type="text" id="otp-input" placeholder="Enter OTP" required>
+            <label for="otp-input">Enter OTP</label>
+        </div>
+        <button id="verify-otp">Verify OTP</button>
+    </div>
+
+    <div id="register-message"></div>
+</div>
+
+
+
+    <script>
+        // Tab Switching
+        document.getElementById('login-tab').addEventListener('click', function() {
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('register-tab').classList.remove('active');
+        });
+
+        document.getElementById('register-tab').addEventListener('click', function() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.add('active');
+            this.classList.add('active');
+            document.getElementById('login-tab').classList.remove('active');
+        });
+
+        // Login Form Submission
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const usernameOrEmail = document.getElementById('login-usernameOrEmail').value;
+            const password = document.getElementById('login-password').value;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usernameOrEmail, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Login successful') {
+                    window.location.href = '/game'; // Redirect to the game page
+                } else {
+                    document.getElementById('login-message').textContent = data.message; // Show error message
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('login-message').textContent = 'An error occurred. Please try again.';
+            });
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    // Show countdown and hide form
+    document.getElementById('signup-form').style.display = 'none';
+    const countdownDisplay = document.getElementById('otp-countdown');
+    countdownDisplay.style.display = 'block';
+    let countdownTime = 5; // Countdown time in seconds
+    document.getElementById('countdown').textContent = countdownTime;
+
+    // Start countdown
+    const countdownInterval = setInterval(() => {
+        countdownTime--;
+        document.getElementById('countdown').textContent = countdownTime;
+        if (countdownTime <= 0) {
+            clearInterval(countdownInterval);
+            // Show OTP section
+            document.getElementById('otp-section').style.display = 'block';
+            countdownDisplay.style.display = 'none';
+        }
+    }, 1000);
+
+    fetch('/signup', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'OTP sent successfully') {
+            // Optionally, you can handle success response here
+        } else {
+            document.getElementById('register-message').textContent = data.message;
+            // Reset form visibility if OTP fails to send
+            document.getElementById('signup-form').style.display = 'block';
+            countdownDisplay.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('register-message').textContent = 'An error occurred. Please try again.';
+        // Reset form visibility if OTP fails to send
+        document.getElementById('signup-form').style.display = 'block';
+        countdownDisplay.style.display = 'none';
+    });
+});
+
+
+        // OTP Verification
+        document.getElementById('verify-otp').addEventListener('click', function() {
+            const otp = document.getElementById('otp-input').value;
+            const email = new FormData(document.getElementById('signup-form')).get('email');
+
+            fetch('/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'OTP verified') {
+                    alert('OTP verified successfully. Redirecting to login page.');
+                    window.location.href = '/login-signup'; // Redirect to login tab
+                } else {
+                    document.getElementById('register-message').textContent = data.message;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Canvas Background
+        'use strict';
+
+        const particleCount = 700;
+        const particlePropCount = 9;
+        const particlePropsLength = particleCount * particlePropCount;
+        const baseTTL = 100;
+        const rangeTTL = 500;
+        const baseSpeed = 0.1;
+        const rangeSpeed = 1;
+        const baseSize = 2;
+        const rangeSize = 10;
+        const baseHue = 10;
+        const rangeHue = 100;
+        const noiseSteps = 2;
+        const xOff = 0.0025;
+        const yOff = 0.005;
+        const zOff = 0.0005;
+        const backgroundColor = 'hsla(60,50%,3%,1)';
+
+        let container;
+        let canvas;
+        let ctx;
+        let center;
+        let tick;
+        let particleProps;
+
+        function setup() {
+            createCanvas();
+            resize();
+            initParticles();
+            draw();
+        }
+
+        function initParticles() {
+            tick = 0;
+            particleProps = new Float32Array(particlePropsLength);
+
+            let i;
+
+            for (i = 0; i < particlePropsLength; i += particlePropCount) {
+                initParticle(i);
+            }
+        }
+
+        function initParticle(i) {
+            let theta, x, y, vx, vy, life, ttl, speed, size, hue;
+
+            theta = Math.random() * 2 * Math.PI;
+            x = Math.random() * canvas.a.width;
+            y = Math.random() * canvas.a.height;
+            vx = Math.cos(theta);
+            vy = Math.sin(theta);
+            life = Math.random() * baseTTL;
+            ttl = baseTTL + Math.random() * rangeTTL;
+            speed = baseSpeed + Math.random() * rangeSpeed;
+            size = baseSize + Math.random() * rangeSize;
+            hue = baseHue + Math.random() * rangeHue;
+
+            particleProps.set([x, y, vx, vy, life, ttl, speed, size, hue], i);
+        }
+
+        function drawParticles() {
+            let i;
+
+            for (i = 0; i < particlePropsLength; i += particlePropCount) {
+                updateParticle(i);
+            }
+        }
+
+        function updateParticle(i) {
+            let i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i;
+            let x, y, theta, vx, vy, life, ttl, speed, x2, y2, size, hue;
+
+            x = particleProps[i];
+            y = particleProps[i2];
+            theta = Math.atan2(y - center[1], x - center[0]) + 0.75 * Math.PI / 2;
+            vx = lerp(particleProps[i3], 2 * Math.cos(theta), 0.05);
+            vy = lerp(particleProps[i4], 2 * Math.sin(theta), 0.05);
+            life = particleProps[i5];
+            ttl = particleProps[i6];
+            speed = particleProps[i7];
+            x2 = x + vx * speed;
+            y2 = y + vy * speed;
+            size = particleProps[i8];
+            hue = particleProps[i9];
+
+            drawParticle(x, y, theta, life, ttl, size, hue);
+
+            life++;
+
+            particleProps[i] = x2;
+            particleProps[i2] = y2;
+            particleProps[i3] = vx;
+            particleProps[i4] = vy;
+            particleProps[i5] = life;
+
+            if (life > ttl) {
+                initParticle(i);
+            }
+        }
+
+        function drawParticle(x, y, theta, life, ttl, size, hue) {
+            let xRel = x - (0.5 * size), yRel = y - (0.5 * size);
+
+            ctx.a.save();
+            ctx.a.lineCap = 'round';
+            ctx.a.lineWidth = 1;
+            ctx.a.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
+            ctx.a.beginPath();
+            ctx.a.translate(xRel, yRel);
+            ctx.a.rotate(theta);
+            ctx.a.translate(-xRel, -yRel);
+            ctx.a.strokeRect(xRel, yRel, size, size);
+            ctx.a.closePath();
+            ctx.a.restore();
+        }
+
+        function createCanvas() {
+            container = document.querySelector('.content--canvas');
+            canvas = {
+                a: document.createElement('canvas'),
+                b: document.createElement('canvas')
+            };
+            canvas.b.style = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            `;
+            container.appendChild(canvas.b);
+            ctx = {
+                a: canvas.a.getContext('2d'),
+                b: canvas.b.getContext('2d')
+            };
+            center = [];
+        }
+
+        function resize() {
+            const { innerWidth, innerHeight } = window;
+
+            canvas.a.width = innerWidth;
+            canvas.a.height = innerHeight;
+
+            ctx.a.drawImage(canvas.b, 0, 0);
+
+            canvas.b.width = innerWidth;
+            canvas.b.height = innerHeight;
+
+            ctx.b.drawImage(canvas.a, 0, 0);
+
+            center[0] = 0.5 * canvas.a.width;
+            center[1] = 0.5 * canvas.a.height;
+        }
+
+        function renderGlow() {
+            ctx.b.save();
+            ctx.b.filter = 'blur(8px) brightness(200%)';
+            ctx.b.globalCompositeOperation = 'lighter';
+            ctx.b.drawImage(canvas.a, 0, 0);
+            ctx.b.restore();
+
+            ctx.b.save();
+            ctx.b.filter = 'blur(4px) brightness(200%)';
+            ctx.b.globalCompositeOperation = 'lighter';
+            ctx.b.drawImage(canvas.a, 0, 0);
+            ctx.b.restore();
+        }
+
+        function render() {
+            ctx.b.save();
+            ctx.b.globalCompositeOperation = 'lighter';
+            ctx.b.drawImage(canvas.a, 0, 0);
+            ctx.b.restore();
+        }
+
+        function draw() {
+            tick++;
+
+            ctx.a.clearRect(0, 0, canvas.a.width, canvas.a.height);
+
+            ctx.b.fillStyle = backgroundColor;
+            ctx.b.fillRect(0, 0, canvas.a.width, canvas.a.height);
+
+            drawParticles();
+            renderGlow();
+            render();
+
+            window.requestAnimationFrame(draw);
+        }
+
+        function fadeInOut(life, ttl) {
+            return Math.max(0, Math.min(1, 1 - Math.abs(life / ttl - 0.5) * 2));
+        }
+
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+
+        window.addEventListener('load', setup);
+        window.addEventListener('resize', resize);
+    </script>
+</body>
+</html>
